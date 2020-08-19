@@ -186,11 +186,24 @@ Installation_dependency(){
 			if [[ -z ${python_status} ]]; then
 				yum update
 				yum install -y python
+				#Vnstat安装
+				yum install -y epel-release # 安装epel源
+				yum install -y vnstat # 安装VnStat
+				vnstat -u -i eth0 # -u 更新数据库 -i 指定网卡
+				chown -R vnstat:vnstat /var/lib/vnstat/ # 设置vnstat数据库目录的所有者为vnstat用户
+				systemctl enable vnstat.service # 启用vnstat服务开机启动
+				systemctl restart vnstat.service # 启动vnstat服务
 			fi
 		else
 			if [[ -z ${python_status} ]]; then
 				apt-get update
 				apt-get install -y python
+				#Vnstat安装
+				apt-get install vnstat -y
+				vnstat -u -i eth0 # -u 更新数据库 -i 指定网卡
+				chown -R vnstat:vnstat /var/lib/vnstat/ # 设置vnstat数据库目录的所有者为vnstat用户
+				systemctl enable vnstat.service # 启用vnstat服务开机启动
+				systemctl restart vnstat.service # 启动vnstat服务
 			fi
 		fi
 	fi
@@ -717,6 +730,7 @@ Install_ServerStatus_server(){
 	Set_server_port
 	echo -e "${Info} 开始安装/配置 依赖..."
 	Installation_dependency "server"
+
 	Install_caddy
 	echo -e "${Info} 开始下载/安装..."
 	Download_Server_Status_server
